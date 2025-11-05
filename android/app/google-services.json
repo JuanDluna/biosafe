@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "683788671905",
+    "project_id": "biosafe-d1a94",
+    "storage_bucket": "biosafe-d1a94.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683788671905:android:e69ae939c42d7b698149e0",
+        "android_client_info": {
+          "package_name": "com.example.biosafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_pf6_cRe6tUamgkUP0v77piEMM-hBmCY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

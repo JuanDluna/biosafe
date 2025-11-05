@@ -1,0 +1,197 @@
+## 🔹 Contexto General del Proyecto
+
+**Nombre del proyecto:** BioSafe
+**Tipo:** Aplicación multiplataforma (Android, iOS y Web)
+**Framework:** Flutter
+**Lenguaje:** Dart
+**Backend:** Firebase (Plan Blaze)
+**Estructura de datos:** Cloud Firestore
+**Autenticación:** Firebase Auth
+**OCR y Escaneo:** Google ML Kit + Mobile Scanner
+**Notificaciones:** Firebase Cloud Messaging
+**Almacenamiento:** Firebase Storage
+**Objetivo:** Desarrollar una app accesible y multiplataforma que ayude a adultos mayores y familiares a gestionar medicamentos, recetas y tratamientos médicos especiales.
+
+---
+
+## 🔹 Arquitectura General
+
+**Colecciones principales en Firestore:**
+
+1. **`users`**
+
+   * ID → `uid` (FirebaseAuth)
+   * Campos:
+
+     * `name` : string
+     * `email` : string
+     * `age` : number
+     * `linked_family` : array<uid> (opcional, familiares con acceso)
+     * `created_at` : timestamp
+
+2. **`medicines`**
+
+   * ID → autogenerado
+   * Campos:
+
+     * `user_id` : uid (referencia al usuario propietario)
+     * `name` : string
+     * `type` : enum (“tabletas”, “líquido”, “otro”)
+     * `total_quantity` : number (tabletas o ml)
+     * `remaining_quantity` : number (puede ser nulo o igual a total)
+     * `dosage` : string (ej. “1 tableta cada 8h”)
+     * `expiration_date` : date
+     * `photo_url` : string (si se usa OCR o cámara)
+     * `barcode` : string (si se registra por escaneo)
+     * `created_at` : timestamp
+
+3. **`treatments`**
+
+   * ID → autogenerado
+   * Campos:
+
+     * `user_id` : uid
+     * `type` : enum (“diabetes”, “presión”, “otro”)
+     * `measurement_value` : number
+     * `measurement_unit` : string (“mg/dL”, “mmHg”)
+     * `timestamp` : date
+
+4. **`notifications`**
+
+   * ID → autogenerado
+   * Campos:
+
+     * `user_id` : uid
+     * `medicine_id` : referencia
+     * `time` : timestamp
+     * `message` : string
+     * `status` : enum (“pending”, “done”)
+
+---
+
+## 🔹 Funcionalidades Esenciales
+
+### 🧾 Autenticación (FirebaseAuth)
+
+* Permitir **inicio de sesión y registro** con correo y contraseña.
+* Al iniciar sesión:
+
+  * Descargar datos del usuario (`users` y `medicines`).
+  * Guardar localmente en SQLite o Hive para modo offline.
+
+---
+
+### 💊 Gestión de Medicamentos
+
+* **Altas**: formulario o escaneo (OCR o código de barras).
+* **Bajas**: eliminar medicamento (local y remoto).
+* **Cambios**: editar cantidad restante, dosis o caducidad.
+* **Sincronización bidireccional**: cada cambio local se sube a Firestore.
+
+---
+
+### 👨‍👩‍👧 Gestión Familiar (Web y App)
+
+* Permitir que un usuario registre familiares (`linked_family`).
+* Un familiar puede consultar:
+
+  * Medicamentos activos
+  * Dosis
+  * Fechas de caducidad
+  * Registro de tratamientos
+* Todo basado en consentimiento del usuario principal.
+
+---
+
+### 🩸 Registro de Tratamientos Especiales
+
+* Permitir añadir mediciones como:
+
+  * Glucosa (mg/dL)
+  * Presión (mmHg)
+  * Peso (kg)
+* Mostrar gráficas simples de historial (por día o semana).
+* Guardar en la colección `treatments`.
+
+---
+
+### 📸 OCR y Código de Barras (solo Android/iOS)
+
+* **OCR con Google ML Kit:**
+
+  * Extraer texto desde foto de medicamento o receta.
+  * Identificar nombre, marca y caducidad mediante expresiones regulares.
+* **Mobile Scanner:**
+
+  * Escanear código de barras del empaque para buscar coincidencias en Firestore.
+
+---
+
+### 🔔 Notificaciones PUSH
+
+* Recordatorios automáticos de toma de medicina.
+* Generar notificaciones locales (si no hay conexión).
+* Enviar notificaciones push (FCM) según horario registrado.
+
+---
+
+## 🔹 Comportamiento de Sincronización
+
+1. Al iniciar sesión:
+
+   * Descargar `medicines`, `treatments`, `notifications` y `linked_family`.
+   * Guardar en base de datos local (`sqflite`).
+2. Cuando el usuario agrega, elimina o edita:
+
+   * Actualiza Firestore.
+   * Refresca almacenamiento local.
+3. Si está sin conexión:
+
+   * Guarda cambios localmente.
+   * Al reconectarse, sincroniza automáticamente.
+
+---
+
+## 🔹 Datos de Prueba Iniciales (para pruebas locales)
+
+### 🔸 Ejemplo en colección `medicines`
+
+```json
+{
+  "user_id": "uid_test_123",
+  "name": "Paracetamol 500mg",
+  "type": "tabletas",
+  "total_quantity": 24,
+  "remaining_quantity": 12,
+  "dosage": "1 tableta cada 8 horas",
+  "expiration_date": "2026-03-01T00:00:00.000Z",
+  "photo_url": "https://firebasestorage.googleapis.com/.../paracetamol.jpg",
+  "barcode": "7501008439255",
+  "created_at": "2025-11-04T10:00:00.000Z"
+}
+```
+
+### 🔸 Ejemplo en colección `treatments`
+
+```json
+{
+  "user_id": "uid_test_123",
+  "type": "diabetes",
+  "measurement_value": 108,
+  "measurement_unit": "mg/dL",
+  "timestamp": "2025-11-04T08:30:00.000Z"
+}
+```
+
+---
+
+## 🔹 Lineamientos para CursorAI
+
+* Mantén **coherencia de código** y estructura conforme al proyecto actual.
+* Toda lectura o escritura debe usar **Firestore y Provider** para manejo de estado.
+* Asegura **compatibilidad con Flutter Web**, evitando dependencias no soportadas.
+* La UI debe ser **accesible y legible para adultos mayores** (botones grandes, texto claro, buen contraste).
+* Toda pantalla debe incluir **narración opcional con FlutterTTS**.
+* Evita duplicación de medicamentos: verifica coincidencias por `barcode` o `name`.
+* Todas las operaciones deben manejar **try-catch** con mensajes amigables.
+

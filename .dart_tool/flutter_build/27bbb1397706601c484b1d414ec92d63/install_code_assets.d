@@ -1,0 +1,1 @@
+ C:\\Proyectos\\biosafe\\.dart_tool\\flutter_build\\27bbb1397706601c484b1d414ec92d63\\native_assets.json: 
