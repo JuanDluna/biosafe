@@ -7,6 +7,7 @@ class UserModel {
   final String email;
   final int? age;
   final List<String>? linkedFamily; // Array de uids de familiares
+  final String? fcmToken; // Token FCM para notificaciones push
   final DateTime createdAt;
 
   UserModel({
@@ -15,6 +16,7 @@ class UserModel {
     required this.email,
     this.age,
     this.linkedFamily,
+    this.fcmToken,
     required this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class UserModel {
       'email': email,
       'age': age,
       'linked_family': linkedFamily,
+      'fcm_token': fcmToken,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -39,6 +42,7 @@ class UserModel {
       linkedFamily: map['linked_family'] != null
           ? List<String>.from(map['linked_family'] as List)
           : null,
+      fcmToken: map['fcm_token'] as String?,
       createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'] as String)
           : DateTime.now(),
@@ -52,6 +56,7 @@ class UserModel {
     String? email,
     int? age,
     List<String>? linkedFamily,
+    String? fcmToken,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -60,6 +65,7 @@ class UserModel {
       email: email ?? this.email,
       age: age ?? this.age,
       linkedFamily: linkedFamily ?? this.linkedFamily,
+      fcmToken: fcmToken ?? this.fcmToken,
       createdAt: createdAt ?? this.createdAt,
     );
   }

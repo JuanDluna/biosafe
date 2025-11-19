@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
+import '../services/notification_service.dart';
 import '../models/user_model.dart';
 
 /// Provider para gestión de autenticación
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   final FirestoreService _firestoreService = FirestoreService();
+  final NotificationService _notificationService = NotificationService();
 
   User? _currentUser;
   UserModel? _userModel;
@@ -43,10 +45,30 @@ class AuthProvider with ChangeNotifier {
   Future<void> _loadUserData(String uid) async {
     try {
       _userModel = await _firestoreService.getUser(uid);
+      
+      // Guardar token FCM si está disponible
+      await _saveFCMToken(uid);
+      
       notifyListeners();
     } catch (e) {
       _errorMessage = 'Error al cargar datos del usuario: $e';
       notifyListeners();
+    }
+  }
+
+  /// Guardar token FCM del usuario
+  Future<void> _saveFCMToken(String userId) async {
+    try {
+      final token = await _notificationService.getFCMToken();
+      if (token != null) {
+        await _notificationService.saveFCMTokenForUser(userId, token);
+        // Actualizar modelo local si existe
+        if (_userModel != null) {
+          _userModel = _userModel!.copyWith(fcmToken: token);
+        }
+      }
+    } catch (e) {
+      // Error silencioso - no crítico
     }
   }
 

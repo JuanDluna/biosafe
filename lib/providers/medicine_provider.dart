@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import '../models/medicine_model.dart';
 import '../services/firestore_service.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
 
 /// Provider para gestión de medicamentos
 class MedicineProvider with ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
   final DatabaseService _databaseService = DatabaseService();
+  final NotificationService _notificationService = NotificationService();
 
   List<MedicineModel> _medicines = [];
   bool _isLoading = false;
@@ -54,6 +56,16 @@ class MedicineProvider with ChangeNotifier {
 
         // Actualizar lista local
         _medicines = await _databaseService.getMedicines(_userId!);
+        
+        // Verificar y programar alertas de vencimiento para todos los medicamentos
+        try {
+          await _notificationService.checkAndScheduleExpirationAlerts(
+            userId: _userId!,
+            medicines: _medicines,
+          );
+        } catch (e) {
+          // Error silencioso en notificaciones
+        }
       } catch (e) {
         // Si falla la sincronización, usar datos locales
         _errorMessage = 'Sin conexión. Mostrando datos locales.';
@@ -90,6 +102,26 @@ class MedicineProvider with ChangeNotifier {
       await _databaseService.insertMedicine(medicine);
 
       _medicines.add(medicine);
+      
+      // Programar notificaciones para el nuevo medicamento
+      if (_userId != null) {
+        try {
+          // Programar recordatorios de dosis si tiene dosis temporizada
+          await _notificationService.scheduleMedicineDosageReminders(
+            userId: _userId!,
+            medicine: medicine,
+          );
+          
+          // Programar alerta de vencimiento
+          await _notificationService.scheduleExpirationAlert(
+            userId: _userId!,
+            medicine: medicine,
+          );
+        } catch (e) {
+          // Error silencioso en notificaciones
+        }
+      }
+      
       _isLoading = false;
       notifyListeners();
       return true;
@@ -124,6 +156,29 @@ class MedicineProvider with ChangeNotifier {
       if (index != -1) {
         _medicines[index] = medicine;
       }
+      
+      // Reprogramar notificaciones para el medicamento actualizado
+      if (_userId != null) {
+        try {
+          // Cancelar notificaciones anteriores
+          if (medicine.id != null) {
+            await _notificationService.cancelAllMedicineNotifications(medicine.id!);
+          }
+          
+          // Programar nuevas notificaciones
+          await _notificationService.scheduleMedicineDosageReminders(
+            userId: _userId!,
+            medicine: medicine,
+          );
+          
+          await _notificationService.scheduleExpirationAlert(
+            userId: _userId!,
+            medicine: medicine,
+          );
+        } catch (e) {
+          // Error silencioso en notificaciones
+        }
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -154,6 +209,13 @@ class MedicineProvider with ChangeNotifier {
 
       // Eliminar localmente
       await _databaseService.deleteMedicineByFirestoreId(medicineId);
+
+      // Cancelar notificaciones del medicamento eliminado
+      try {
+        await _notificationService.cancelAllMedicineNotifications(medicineId);
+      } catch (e) {
+        // Error silencioso
+      }
 
       _medicines.removeWhere((m) => m.id == medicineId);
 

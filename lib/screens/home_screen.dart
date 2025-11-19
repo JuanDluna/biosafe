@@ -141,132 +141,134 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return RefreshIndicator(
           onRefresh: () => medicineProvider.loadMedicines(),
-          child: CustomScrollView(
-            slivers: [
-              // Header con estadísticas
-              SliverToBoxAdapter(
+              child: CustomScrollView(
+                slivers: [
+                  // Header con estadísticas
+                  SliverToBoxAdapter(
                 child: _buildStatsHeader(medicines, expiringMedicines),
-              ),
-              
-              // Sección de medicamentos próximos a vencer
+                  ),
+                  
+                  // Sección de medicamentos próximos a vencer
               if (expiringMedicines.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: BioSafeTheme.warningColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: BioSafeTheme.warningColor, width: 2),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.warning_amber, 
-                                  color: BioSafeTheme.warningColor, size: 28),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Medicamentos por vencer',
-                                style: TextStyle(
-                                  fontSize: BioSafeTheme.fontSizeMedium,
-                                  fontWeight: FontWeight.bold,
-                                  color: BioSafeTheme.warningColor,
-                                ),
-                              ),
-                            ],
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: BioSafeTheme.warningColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: BioSafeTheme.warningColor, width: 2),
                           ),
-                          const SizedBox(height: 12),
-                          ...expiringMedicines.take(3).map((med) => 
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
-                                  const Icon(Icons.arrow_forward,
-                                      color: BioSafeTheme.warningColor, size: 16),
+                                  const Icon(Icons.warning_amber, 
+                                      color: BioSafeTheme.warningColor, size: 28),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '${med.name} - Vence: ${DateFormat('dd/MM/yyyy').format(med.expirationDate)}',
-                                      style: const TextStyle(fontSize: BioSafeTheme.fontSizeSmall),
+                                  const Text(
+                                    'Medicamentos por vencer',
+                                    style: TextStyle(
+                                      fontSize: BioSafeTheme.fontSizeMedium,
+                                      fontWeight: FontWeight.bold,
+                                      color: BioSafeTheme.warningColor,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ).toList(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              
-              // Lista de todos los medicamentos
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: medicines.isEmpty
-                    ? SliverToBoxAdapter(
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 40),
-                              Icon(
-                                Icons.medication_liquid,
-                                size: 80,
-                                color: Colors.grey.shade300,
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                AppConstants.emptyInventory,
-                                style: TextStyle(
-                                  fontSize: BioSafeTheme.fontSizeMedium,
-                                  color: BioSafeTheme.textSecondary,
+                              const SizedBox(height: 12),
+                          ...expiringMedicines.take(3).map((med) => 
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.arrow_forward,
+                                          color: BioSafeTheme.warningColor, size: 16),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                      '${med.name} - Vence: ${DateFormat('dd/MM/yyyy').format(med.expirationDate)}',
+                                          style: const TextStyle(fontSize: BioSafeTheme.fontSizeSmall),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Toca el botón + para agregar uno',
-                                style: TextStyle(
-                                  fontSize: BioSafeTheme.fontSizeSmall,
-                                  color: BioSafeTheme.textSecondary,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                              ).toList(),
                             ],
                           ),
                         ),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final medicine = medicines[index];
-                            return MedicineCard(
-                              medicine: medicine,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AddMedicineScreen(medicine: medicine),
+                      ),
+                    ),
+                  
+                  // Lista de todos los medicamentos
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                sliver: medicines.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 40),
+                                  Icon(
+                                    Icons.medication_liquid,
+                                    size: 80,
+                                    color: Colors.grey.shade300,
                                   ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    AppConstants.emptyInventory,
+                                    style: TextStyle(
+                                      fontSize: BioSafeTheme.fontSizeMedium,
+                                      color: BioSafeTheme.textSecondary,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Toca el botón + para agregar uno',
+                                    style: TextStyle(
+                                      fontSize: BioSafeTheme.fontSizeSmall,
+                                      color: BioSafeTheme.textSecondary,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final medicine = medicines[index];
+                                return MedicineCard(
+                                  medicine: medicine,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddMedicineScreen(medicine: medicine),
+                                      ),
                                 ).then((_) => medicineProvider.loadMedicines());
                               },
                               onDelete: () => _deleteMedicine(medicine, medicineProvider),
                             );
                           },
                           childCount: medicines.length,
-                        ),
-                      ),
+                            ),
+                          ),
+                  ),
+                  
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 80),
+                  ),
+                ],
               ),
-              
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 80),
-              ),
-            ],
-          ),
         );
       },
     );

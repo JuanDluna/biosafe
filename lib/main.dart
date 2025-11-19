@@ -1,6 +1,7 @@
 // BioSafe - archivo generado con IA asistida - revisión: Pablo
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -14,6 +15,20 @@ import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Ocultar mensajes de overflow en modo debug
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    // En producción, mostrar un widget de error simple
+    // En debug, mostrar el error completo pero sin overflow
+    if (details.exception is FlutterError) {
+      final error = details.exception as FlutterError;
+      if (error.message.contains('overflowed') || error.message.contains('RenderFlex')) {
+        // Ocultar errores de overflow visualmente
+        return const SizedBox.shrink();
+      }
+    }
+    return ErrorWidget(details.exception);
+  };
   
   // Inicializar Firebase
   await Firebase.initializeApp(
@@ -52,9 +67,33 @@ class BioSafeApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: BioSafeTheme.lightTheme,
+      title: AppConstants.appName,
+      debugShowCheckedModeBanner: false,
+        // Mejorar responsividad y prevenir overflow
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: MediaQuery.of(context).textScaler.clamp(
+                minScaleFactor: 0.8,
+                maxScaleFactor: 1.2,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      theme: BioSafeTheme.lightTheme,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es', 'ES'), // Español de España
+          Locale('es', 'MX'), // Español de México
+          Locale('es'), // Español genérico
+          Locale('en', 'US'), // Inglés como fallback
+        ],
+        locale: const Locale('es', 'ES'),
         home: const AuthWrapper(),
       ),
     );

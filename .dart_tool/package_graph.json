@@ -16,6 +16,7 @@
         "fl_chart",
         "flutter",
         "flutter_local_notifications",
+        "flutter_localizations",
         "flutter_tts",
         "font_awesome_flutter",
         "google_mlkit_text_recognition",
@@ -27,7 +28,8 @@
         "path_provider",
         "provider",
         "shared_preferences",
-        "sqflite"
+        "sqflite",
+        "timezone"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -68,6 +70,13 @@
       ]
     },
     {
+      "name": "timezone",
+      "version": "0.9.4",
+      "dependencies": [
+        "path"
+      ]
+    },
+    {
       "name": "flutter_local_notifications",
       "version": "18.0.1",
       "dependencies": [
@@ -93,7 +102,7 @@
     },
     {
       "name": "intl",
-      "version": "0.19.0",
+      "version": "0.20.2",
       "dependencies": [
         "clock",
         "meta",
@@ -262,6 +271,15 @@
       "dependencies": []
     },
     {
+      "name": "flutter_localizations",
+      "version": "0.0.0",
+      "dependencies": [
+        "flutter",
+        "intl",
+        "path"
+      ]
+    },
+    {
       "name": "flutter",
       "version": "0.0.0",
       "dependencies": [
@@ -363,14 +381,6 @@
       "dependencies": [
         "collection",
         "meta"
-      ]
-    },
-    {
-      "name": "timezone",
-      "version": "0.10.1",
-      "dependencies": [
-        "http",
-        "path"
       ]
     },
     {
@@ -876,16 +886,6 @@
       ]
     },
     {
-      "name": "http",
-      "version": "1.5.0",
-      "dependencies": [
-        "async",
-        "http_parser",
-        "meta",
-        "web"
-      ]
-    },
-    {
       "name": "xdg_directories",
       "version": "1.1.0",
       "dependencies": [
@@ -943,6 +943,16 @@
         "flutter",
         "http",
         "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "http",
+      "version": "1.5.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
       ]
     },
     {

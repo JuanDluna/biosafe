@@ -30,12 +30,12 @@ class MedicineCard extends StatelessWidget {
     Color statusColor = BioSafeTheme.textSecondary;
 
     if (isExpired) {
-      cardColor = BioSafeTheme.accentColor.withOpacity(0.1);
+      cardColor = BioSafeTheme.accentColor.withValues(alpha: 0.1);
       borderColor = BioSafeTheme.accentColor;
       statusText = 'VENCIDO';
       statusColor = BioSafeTheme.accentColor;
     } else if (isExpiringSoon) {
-      cardColor = BioSafeTheme.warningColor.withOpacity(0.1);
+      cardColor = BioSafeTheme.warningColor.withValues(alpha: 0.1);
       borderColor = BioSafeTheme.warningColor;
       statusText = 'Por vencer';
       statusColor = BioSafeTheme.warningColor;
@@ -67,13 +67,17 @@ class MedicineCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: BioSafeTheme.textPrimary,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (statusText.isNotEmpty)
-                    Container(
+                  if (statusText.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.2),
+                          color: statusColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: statusColor, width: 1.5),
                       ),
@@ -83,15 +87,18 @@ class MedicineCard extends StatelessWidget {
                           fontSize: BioSafeTheme.fontSizeSmall,
                           fontWeight: FontWeight.bold,
                           color: statusColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
+                  ],
                 ],
               ),
               const SizedBox(height: 8),
-              if (medicine.dosage.isNotEmpty) ...[
+              if (medicine.description.isNotEmpty) ...[
                 Text(
-                  'Dosis: ${medicine.dosage}',
+                  medicine.description,
                   style: const TextStyle(
                     fontSize: BioSafeTheme.fontSizeSmall,
                     color: BioSafeTheme.textSecondary,
@@ -101,26 +108,58 @@ class MedicineCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
               ],
+              if (medicine.dosage.isNotEmpty) ...[
+                Text(
+                  'Dosis: ${medicine.dosage}',
+                  style: const TextStyle(
+                    fontSize: BioSafeTheme.fontSizeSmall,
+                    color: BioSafeTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+              ],
+              // Información de cantidad y fecha - Responsive
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
               Row(
+                    mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.inventory_2, size: 20, color: BioSafeTheme.primaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Cantidad: ${medicine.remainingQuantity ?? medicine.totalQuantity} / ${medicine.totalQuantity}',
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          'Cantidad: ${medicine.remainingQuantity ?? medicine.totalQuantity}${medicine.type == MedicineType.liquido ? ' ml' : ''} / ${medicine.totalQuantity}${medicine.type == MedicineType.liquido ? ' ml' : ''}',
                     style: const TextStyle(
                       fontSize: BioSafeTheme.fontSizeSmall,
                       color: BioSafeTheme.textPrimary,
                     ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                   const Icon(Icons.calendar_today, size: 20, color: BioSafeTheme.secondaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Vence: ${dateFormat.format(medicine.expirationDate)}',
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          'Vence: ${dateFormat.format(medicine.expirationDate)}',
                     style: const TextStyle(
                       fontSize: BioSafeTheme.fontSizeSmall,
                       color: BioSafeTheme.textPrimary,
                     ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

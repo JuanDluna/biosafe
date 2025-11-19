@@ -10,7 +10,7 @@ import '../models/notification_model.dart';
 class DatabaseService {
   static Database? _database;
   static const String _dbName = 'biosafe.db';
-  static const int _dbVersion = 2; // Versión actualizada para nuevo esquema
+  static const int _dbVersion = 3; // Versión actualizada para incluir descripción y dosis temporizada
   
   // Nombres de tablas
   static const String _tableMedicines = 'medicines';
@@ -55,10 +55,14 @@ class DatabaseService {
         firestore_id TEXT,
         user_id TEXT NOT NULL,
         name TEXT NOT NULL,
+        description TEXT NOT NULL,
         type TEXT NOT NULL,
         total_quantity INTEGER NOT NULL,
         remaining_quantity INTEGER,
         dosage TEXT NOT NULL,
+        dosage_amount TEXT,
+        dosage_interval_hours INTEGER,
+        dosage_duration_days INTEGER,
         expiration_date TEXT NOT NULL,
         photo_url TEXT,
         barcode TEXT,
@@ -107,6 +111,28 @@ class DatabaseService {
       await db.execute('DROP TABLE IF EXISTS $_tableTreatments');
       await db.execute('DROP TABLE IF EXISTS $_tableNotifications');
       await _onCreate(db, newVersion);
+    } else if (oldVersion < 3) {
+      // Migrar a versión 3: agregar campos de descripción y dosis temporizada
+      try {
+        await db.execute('ALTER TABLE $_tableMedicines ADD COLUMN description TEXT NOT NULL DEFAULT ""');
+      } catch (e) {
+        // Si la columna ya existe, ignorar
+      }
+      try {
+        await db.execute('ALTER TABLE $_tableMedicines ADD COLUMN dosage_amount TEXT');
+      } catch (e) {
+        // Si la columna ya existe, ignorar
+      }
+      try {
+        await db.execute('ALTER TABLE $_tableMedicines ADD COLUMN dosage_interval_hours INTEGER');
+      } catch (e) {
+        // Si la columna ya existe, ignorar
+      }
+      try {
+        await db.execute('ALTER TABLE $_tableMedicines ADD COLUMN dosage_duration_days INTEGER');
+      } catch (e) {
+        // Si la columna ya existe, ignorar
+      }
     }
   }
 

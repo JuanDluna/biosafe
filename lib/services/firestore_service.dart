@@ -1,6 +1,7 @@
 // BioSafe - archivo generado con IA asistida - revisión: Pablo
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../models/medicine_model.dart';
 import '../models/treatment_model.dart';
 import '../models/notification_model.dart';
@@ -8,7 +9,12 @@ import '../models/user_model.dart';
 
 /// Servicio para gestión CRUD en Cloud Firestore
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Acceder a la base de datos "biosafe"
+  // Si la base de datos nombrada no existe, Firebase usará la base de datos por defecto
+  final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
+    app: Firebase.app(),
+    databaseId: 'biosafe',
+  );
 
   // ========== USUARIOS ==========
 
@@ -40,6 +46,17 @@ class FirestoreService {
       await _firestore.collection('users').doc(user.uid).update(user.toMap());
     } catch (e) {
       throw Exception('Error al actualizar usuario: $e');
+    }
+  }
+
+  /// Actualizar token FCM del usuario
+  Future<void> updateFCMToken(String userId, String fcmToken) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'fcm_token': fcmToken,
+      });
+    } catch (e) {
+      throw Exception('Error al actualizar token FCM: $e');
     }
   }
 
